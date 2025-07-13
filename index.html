@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>五目並べ</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>五目並べ</h1>
+        </header>
+        <main>
+            <div id="game-board-container">
+                <canvas id="gomoku-board"></canvas>
+            </div>
+            <div id="game-controls">
+                <div id="game-mode-selector">
+                    <label><input type="radio" name="mode" value="pvp"> <span>二人対戦</span></label>
+                    <label><input type="radio" name="mode" value="pva" checked> <span>AI対戦</span></label>
+                </div>
+                <p id="message">AIとの対戦を開始します</p>
+                <button id="reset-button">リセット</button>
+            </div>
+        </main>
+    </div>
+    <script src="gomoku.js"></script>
+</body>
+</html>

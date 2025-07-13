@@ -1,0 +1,106 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #121212;
+    color: #e0e0e0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    padding: 2rem;
+}
+
+header h1 {
+    font-size: 3rem;
+    font-weight: 600;
+    color: #ffffff;
+    text-shadow: 0 0 10px #00bcd4, 0 0 20px #00bcd4;
+}
+
+main {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem;
+}
+
+#game-board-container {
+    border: 2px solid #00bcd4;
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: 0 0 20px rgba(0, 188, 212, 0.5);
+}
+
+canvas {
+    background-color: #1e1e1e;
+    border-radius: 5px;
+}
+
+#game-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    min-width: 250px;
+}
+
+#game-mode-selector {
+    display: flex;
+    gap: 1rem;
+    background-color: #1e1e1e;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+}
+
+#game-mode-selector label {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#game-mode-selector input[type="radio"] {
+    display: none; /* Hide original radio button */
+}
+
+#game-mode-selector span {
+    padding: 0.5rem 1rem;
+    border-radius: 15px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+#game-mode-selector input[type="radio"]:checked + span {
+    background-color: #00bcd4;
+    color: #121212;
+    font-weight: 600;
+}
+
+#message {
+    font-size: 1.2rem;
+    min-height: 2em;
+    text-align: center;
+}
+
+#reset-button {
+    background-color: transparent;
+    border: 2px solid #00bcd4;
+    color: #00bcd4;
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s, box-shadow 0.3s;
+}
+
+#reset-button:hover {
+    background-color: #00bcd4;
+    color: #121212;
+    box-shadow: 0 0 15px #00bcd4;
+}

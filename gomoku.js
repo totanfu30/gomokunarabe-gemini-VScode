@@ -2,6 +2,8 @@ const canvas = document.getElementById('gomoku-board');
 const context = canvas.getContext('2d');
 const message = document.getElementById('message');
 const modeRadios = document.querySelectorAll('input[name="mode"]');
+const turnRadios = document.querySelectorAll('input[name="player-turn"]');
+const resetButton = document.getElementById('reset-button');
 
 const BOARD_SIZE = 15;
 const CELL_SIZE = 40;
@@ -9,12 +11,11 @@ const PADDING = 20;
 canvas.width = BOARD_SIZE * CELL_SIZE + PADDING * 2;
 canvas.height = BOARD_SIZE * CELL_SIZE + PADDING * 2;
 
-const resetButton = document.getElementById('reset-button');
-
 let board = [];
-let currentPlayer = 'black'; // 'black' is Player 1 (Magenta), 'white' is Player 2 (Cyan)
+let currentPlayer = 'black';
+let playerTurn = 'black'; // The human player's chosen color
 let gameOver = false;
-let gameMode = 'pva'; // Default to Player vs AI
+let gameMode = 'pva';
 
 function initBoard() {
     board = Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(null));
@@ -24,7 +25,6 @@ function drawBoard() {
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.strokeStyle = '#555';
     context.lineWidth = 1;
-
     for (let i = 0; i < BOARD_SIZE; i++) {
         context.beginPath();
         context.moveTo(PADDING + i * CELL_SIZE, PADDING);
@@ -38,20 +38,8 @@ function drawBoard() {
 }
 
 function drawStone(x, y, player) {
-    const stoneColor = player === 'black' ? '#FF00FF' : '#00BCD4';
-    const glowColor = player === 'black' ? 'rgba(255, 0, 255, 0.7)' : 'rgba(0, 188, 212, 0.7)';
-
-    context.shadowBlur = 15;
-    context.shadowColor = glowColor;
-
     context.beginPath();
-    context.arc(
-        PADDING + x * CELL_SIZE,
-        PADDING + y * CELL_SIZE,
-        CELL_SIZE / 2 - 4,
-        0,
-        2 * Math.PI
-    );
+    context.arc(PADDING + x * CELL_SIZE, PADDING + y * CELL_SIZE, CELL_SIZE / 2 - 4, 0, 2 * Math.PI);
 
     const gradient = context.createRadialGradient(
         PADDING + x * CELL_SIZE - 3, PADDING + y * CELL_SIZE - 3, 2,
@@ -67,9 +55,6 @@ function drawStone(x, y, player) {
     }
     context.fillStyle = gradient;
     context.fill();
-
-    context.shadowBlur = 0;
-    context.shadowColor = 'transparent';
 }
 
 function drawStones() {
@@ -84,7 +69,7 @@ function drawStones() {
 
 function getPlayerDisplayName(player) {
     if (gameMode === 'pva') {
-        return player === 'black' ? 'あなた' : 'AI';
+        return player === playerTurn ? 'あなた' : 'AI';
     } else {
         return player === 'black' ? 'プレイヤー1' : 'プレイヤー2';
     }
@@ -128,39 +113,41 @@ function aiMove() {
     message.textContent = 'AIが考えています...';
 
     setTimeout(() => {
-        const bestMove = findBestMove();
+        const aiPlayer = playerTurn === 'black' ? 'white' : 'black';
+        const bestMove = findBestMove(aiPlayer);
         if (bestMove) {
-            board[bestMove.y][bestMove.x] = 'white';
+            board[bestMove.y][bestMove.x] = aiPlayer;
             drawStones();
-            if (checkWin(bestMove.x, bestMove.y, 'white')) {
-                message.textContent = `${getPlayerDisplayName('white')}の勝ちです！`;
+            if (checkWin(bestMove.x, bestMove.y, aiPlayer)) {
+                message.textContent = `${getPlayerDisplayName(aiPlayer)}の勝ちです！`;
                 gameOver = true;
             } else if (checkDraw()) {
                 message.textContent = '引き分けです。';
                 gameOver = true;
             } else {
-                currentPlayer = 'black';
+                currentPlayer = playerTurn;
                 message.textContent = `${getPlayerDisplayName(currentPlayer)}の番です`;
             }
         }
     }, 100);
 }
 
-function findBestMove() {
+function findBestMove(aiPlayer) {
     if (board.every(row => row.every(cell => cell === null))) {
         return { x: Math.floor(BOARD_SIZE / 2), y: Math.floor(BOARD_SIZE / 2) };
     }
 
     let bestScore = -Infinity;
     let move = null;
-    const depth = 2;
+    const depth = 1; // Reduced from 2 for faster response
+    const humanPlayer = aiPlayer === 'black' ? 'white' : 'black';
 
     const candidates = getCandidateMoves();
 
     for (const candidate of candidates) {
         const { x, y } = candidate;
-        board[y][x] = 'white';
-        let score = minimax(board, depth, false, -Infinity, Infinity);
+        board[y][x] = aiPlayer;
+        let score = minimax(board, depth, false, -Infinity, Infinity, aiPlayer, humanPlayer);
         board[y][x] = null;
 
         if (score > bestScore) {
@@ -208,8 +195,8 @@ function getCandidateMoves() {
     });
 }
 
-function minimax(currentBoard, depth, isMaximizing, alpha, beta) {
-    let score = evaluateBoard(currentBoard);
+function minimax(currentBoard, depth, isMaximizing, alpha, beta, aiPlayer, humanPlayer) {
+    let score = evaluateBoard(currentBoard, aiPlayer, humanPlayer);
 
     if (Math.abs(score) > 100000 || depth === 0 || checkDraw()) {
         return score;
@@ -220,8 +207,8 @@ function minimax(currentBoard, depth, isMaximizing, alpha, beta) {
         for (let y = 0; y < BOARD_SIZE; y++) {
             for (let x = 0; x < BOARD_SIZE; x++) {
                 if (currentBoard[y][x] === null) {
-                    currentBoard[y][x] = 'white';
-                    best = Math.max(best, minimax(currentBoard, depth - 1, false, alpha, beta));
+                    currentBoard[y][x] = aiPlayer;
+                    best = Math.max(best, minimax(currentBoard, depth - 1, false, alpha, beta, aiPlayer, humanPlayer));
                     currentBoard[y][x] = null;
                     alpha = Math.max(alpha, best);
                     if (beta <= alpha) break;
@@ -235,8 +222,8 @@ function minimax(currentBoard, depth, isMaximizing, alpha, beta) {
         for (let y = 0; y < BOARD_SIZE; y++) {
             for (let x = 0; x < BOARD_SIZE; x++) {
                 if (currentBoard[y][x] === null) {
-                    currentBoard[y][x] = 'black';
-                    best = Math.min(best, minimax(currentBoard, depth - 1, true, alpha, beta));
+                    currentBoard[y][x] = humanPlayer;
+                    best = Math.min(best, minimax(currentBoard, depth - 1, true, alpha, beta, aiPlayer, humanPlayer));
                     currentBoard[y][x] = null;
                     beta = Math.min(beta, best);
                     if (beta <= alpha) break;
@@ -248,7 +235,7 @@ function minimax(currentBoard, depth, isMaximizing, alpha, beta) {
     }
 }
 
-function evaluateBoard(currentBoard) {
+function evaluateBoard(currentBoard, aiPlayer, humanPlayer) {
     let score = 0;
     const lines = [];
 
@@ -287,23 +274,23 @@ function evaluateBoard(currentBoard) {
     }
 
     for(const line of lines) {
-        score += evaluateLine(line);
+        score += evaluateLine(line, aiPlayer, humanPlayer);
     }
 
     return score;
 }
 
-function evaluateLine(line) {
+function evaluateLine(line, aiPlayer, humanPlayer) {
     let score = 0;
     for (let i = 0; i <= line.length - 5; i++) {
         const subLine = line.slice(i, i + 5);
-        score += scorePattern(subLine, 'white') - scorePattern(subLine, 'black') * 1.1;
+        score += scorePattern(subLine, aiPlayer) - scorePattern(subLine, humanPlayer) * 1.1;
     }
     return score;
 }
 
 function scorePattern(pattern, player) {
-    const opponent = player === 'white' ? 'black' : 'white';
+    const opponent = player === 'black' ? 'white' : 'black';
     let playerCount = pattern.filter(s => s === player).length;
     let emptyCount = pattern.filter(s => s === null).length;
     let opponentCount = pattern.filter(s => s === opponent).length;
@@ -323,7 +310,7 @@ function scorePattern(pattern, player) {
 
 canvas.addEventListener('click', (event) => {
     if (gameOver) return;
-    if (gameMode === 'pva' && currentPlayer === 'white') return;
+    if (gameMode === 'pva' && currentPlayer !== playerTurn) return;
 
     const rect = canvas.getBoundingClientRect();
     const x = Math.round((event.clientX - rect.left - PADDING) / CELL_SIZE);
@@ -350,7 +337,7 @@ canvas.addEventListener('click', (event) => {
     currentPlayer = currentPlayer === 'black' ? 'white' : 'black';
     message.textContent = `${getPlayerDisplayName(currentPlayer)}の番です`;
 
-    if (gameMode === 'pva' && currentPlayer === 'white') {
+    if (gameMode === 'pva' && currentPlayer !== playerTurn) {
         setTimeout(aiMove, 500);
     }
 });
@@ -360,13 +347,27 @@ function resetGame() {
     drawBoard();
     drawStones();
     currentPlayer = 'black';
-    message.textContent = `${getPlayerDisplayName(currentPlayer)}の番です`;
+    playerTurn = document.querySelector('input[name="player-turn"]:checked').value;
     gameOver = false;
+
+    if (gameMode === 'pva' && currentPlayer !== playerTurn) {
+        message.textContent = 'AIが考えています...';
+        setTimeout(aiMove, 500);
+    } else {
+        message.textContent = `${getPlayerDisplayName(currentPlayer)}の番です`;
+    }
 }
 
 modeRadios.forEach(radio => {
     radio.addEventListener('change', (event) => {
         gameMode = event.target.value;
+        resetGame();
+    });
+});
+
+turnRadios.forEach(radio => {
+    radio.addEventListener('change', (event) => {
+        playerTurn = event.target.value;
         resetGame();
     });
 });

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>五目並べ</title>
+    <title>Gomoku Nexus</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,18 +12,24 @@
 <body>
     <div class="container">
         <header>
-            <h1>五目並べ</h1>
+            <h1>Gomoku Nexus</h1>
         </header>
         <main>
             <div id="game-board-container">
                 <canvas id="gomoku-board"></canvas>
             </div>
             <div id="game-controls">
-                <div id="game-mode-selector">
-                    <label><input type="radio" name="mode" value="pvp"> <span>二人対戦</span></label>
-                    <label><input type="radio" name="mode" value="pva" checked> <span>AI対戦</span></label>
+                <div class="control-group">
+                    <div id="game-mode-selector">
+                        <label><input type="radio" name="mode" value="pvp"> <span>二人対戦</span></label>
+                        <label><input type="radio" name="mode" value="pva" checked> <span>AI対戦</span></label>
+                    </div>
+                    <div id="player-turn-selector">
+                        <label><input type="radio" name="player-turn" value="black" checked> <span>先手 (Magenta)</span></label>
+                        <label><input type="radio" name="player-turn" value="white"> <span>後手 (Cyan)</span></label>
+                    </div>
                 </div>
-                <p id="message">AIとの対戦を開始します</p>
+                <p id="message">あなたの番です</p>
                 <button id="reset-button">リセット</button>
             </div>
         </main>

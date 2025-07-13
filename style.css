@@ -22,6 +22,7 @@ header h1 {
     font-weight: 600;
     color: #ffffff;
     text-shadow: 0 0 10px #00bcd4, 0 0 20px #00bcd4;
+    letter-spacing: 2px;
 }
 
 main {
@@ -48,35 +49,43 @@ canvas {
     flex-direction: column;
     align-items: center;
     gap: 1.5rem;
-    min-width: 250px;
+    min-width: 280px;
 }
 
-#game-mode-selector {
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+#game-mode-selector, #player-turn-selector {
     display: flex;
     gap: 1rem;
     background-color: #1e1e1e;
     padding: 0.5rem 1rem;
     border-radius: 20px;
+    justify-content: center;
 }
 
-#game-mode-selector label {
+#game-mode-selector label, #player-turn-selector label {
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 0.5rem;
 }
 
-#game-mode-selector input[type="radio"] {
+#game-mode-selector input[type="radio"], #player-turn-selector input[type="radio"] {
     display: none; /* Hide original radio button */
 }
 
-#game-mode-selector span {
+#game-mode-selector span, #player-turn-selector span {
     padding: 0.5rem 1rem;
     border-radius: 15px;
     transition: background-color 0.3s, color 0.3s;
+    white-space: nowrap;
 }
 
-#game-mode-selector input[type="radio"]:checked + span {
+#game-mode-selector input[type="radio"]:checked + span, #player-turn-selector input[type="radio"]:checked + span {
     background-color: #00bcd4;
     color: #121212;
     font-weight: 600;
